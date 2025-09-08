@@ -72,6 +72,7 @@ impl TokenSigner {
             key: None,
             privkey: None,
             identity: None,
+            require_identity: true,
             include_fingerprint: false,
             magic_prefix: crate::MAGIC_PREFIX_DEFAULT,
         })
@@ -92,6 +93,7 @@ impl TokenSigner {
             key: None,
             privkey: Some(privkey.clone()),
             identity: None,
+            require_identity: true,
             include_fingerprint: false,
             magic_prefix: crate::MAGIC_PREFIX_DEFAULT,
         })
@@ -138,6 +140,7 @@ pub struct TokenSignerBuilder {
     privkey: Option<PrivateKey>,
     identity: Option<TokenIdentity>,
     include_fingerprint: bool,
+    require_identity: bool,
     magic_prefix: [u8; 8],
 }
 
@@ -163,6 +166,11 @@ impl TokenSignerBuilder {
         self
     }
 
+    pub fn require_identity(&mut self, req: bool) -> &mut Self {
+        self.require_identity = req;
+        self
+    }
+
     pub fn build(&mut self) -> Result<TokenSigner> {
         let identity = match &self.identity {
             Some(t @ TokenIdentity::FileName(name)) => {
@@ -173,7 +181,7 @@ impl TokenSignerBuilder {
                 Some(t.clone())
             }
             None => {
-                if !self.include_fingerprint {
+                if !self.include_fingerprint && self.require_identity {
                     bail!("token must include an identity or a fingerprint");
                 }
 
