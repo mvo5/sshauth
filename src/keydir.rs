@@ -5,6 +5,7 @@
 use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, bail, Result};
+use base64::prelude::*;
 use ssh_key::PublicKey;
 
 use crate::token::TokenIdentity;
@@ -52,9 +53,10 @@ impl KeyDirectory {
                         {
                             bail!("line {n}: invalid key format");
                         }
-                        let buf = base64::decode(t[1]).map_err(|e| {
-                            anyhow!("line {n}: decoding key: {e}")
-                        })?;
+                        let buf =
+                            BASE64_STANDARD.decode(t[1]).map_err(|e| {
+                                anyhow!("line {n}: decoding key: {e}")
+                            })?;
                         let mut key = PublicKey::from_bytes(buf.as_slice())
                             .map_err(|e| {
                                 anyhow!("line {n}: parsing key: {e}")

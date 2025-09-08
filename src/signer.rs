@@ -101,7 +101,7 @@ impl TokenSigner {
      * Begin creating a token for a particular action using the configured key
      * source and identity data.
      */
-    pub fn sign_for(&self) -> TokenBuilder {
+    pub fn sign_for(&self) -> TokenBuilder<'_> {
         let fingerprint = if self.include_fingerprint {
             Some(TokenFingerprint::Sha256(
                 match &self.mech {

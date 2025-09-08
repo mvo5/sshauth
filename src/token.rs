@@ -3,6 +3,7 @@
  */
 
 use anyhow::{bail, Result};
+use base64::prelude::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use ssh_key::{Fingerprint, Signature};
@@ -161,7 +162,7 @@ impl Token {
      * header.
      */
     pub fn encode(&self) -> String {
-        base64::encode_config(self.encode_raw(), base64::URL_SAFE_NO_PAD)
+        BASE64_URL_SAFE_NO_PAD.encode(self.encode_raw())
     }
 
     /**
@@ -181,9 +182,7 @@ impl Token {
      */
     pub(crate) fn decode(token: &[u8]) -> Option<Self> {
         let t: Token = postcard::from_bytes(
-            base64::decode_config(token, base64::URL_SAFE_NO_PAD)
-                .ok()?
-                .as_slice(),
+            BASE64_URL_SAFE_NO_PAD.decode(token).ok()?.as_slice(),
         )
         .ok()?;
 
